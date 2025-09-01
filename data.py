@@ -66,8 +66,8 @@ def add_transaction(t_type, amount, category=None, date=None, note=""):
     print("Transaction added successfully.")
     return transaction
     
-
-def get_all_transactions():
+#function to get all stored transactions with validation and optional filtering
+def get_transactions(t_type=None, start_date=None, end_date=None, category=None):
     
     transactions = load_data()
 
@@ -82,5 +82,40 @@ def get_all_transactions():
             valid_transactions.append(t)
         except ValueError as e:
             print(f"Skipping invalid transaction: {e}")
-    return valid_transactions
+    
+    # Apply filters
+    filtered = valid_transactions
+    if t_type:
+        filtered = [t for t in filtered if t["type"] == t_type]
+    if start_date:
+        filtered = [t for t in filtered if t["date"] >= start_date]
+    if end_date:
+        filtered = [t for t in filtered if t["date"] <= end_date]
+    if category:
+        filtered = [t for t in filtered if t["category"] == category]
 
+    return filtered
+
+#function to calculate and return total income and expenses with optional filtering
+def get_total(t_type=None, start_date=None, end_date=None, category=None):
+    
+    transactions = get_transactions(
+        t_type=t_type,
+        start_date=start_date,
+        end_date=end_date,
+        category=category
+    )
+
+    income = sum(t["amount"] for t in transactions if t["type"] == "income")
+    expense = sum(t["amount"] for t in transactions if t["type"] == "expense")
+
+    return {"income": income, "expense": expense}
+
+#function to calculate and return the balance (income - expenses) with optional filtering
+def get_balance(start_date=None, end_date=None, category=None):
+    total = get_total(
+        start_date=start_date,
+        end_date=end_date,
+        category=category
+    )
+    return total["income"] - total["expense"]
