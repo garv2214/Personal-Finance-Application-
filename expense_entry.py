@@ -27,3 +27,4 @@ def pie_chart(root, expenses):
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().pack()
+
